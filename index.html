@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Política de Privacidade — Duosat Remote (Uso Pessoal)</title>
+  <style>
+    :root {
+      --bg: #0B1120;
+      --surface: #111827;
+      --surface-2: #162032;
+      --border: #334155;
+      --text: #F8FAFC;
+      --muted: #94A3B8;
+      --primary: #60A5FA;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      padding: 32px 16px;
+    }
+    main {
+      max-width: 780px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px 28px;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 18px;
+      margin-bottom: 24px;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(96, 165, 250, 0.14);
+      color: var(--primary);
+      border: 1px solid rgba(96, 165, 250, 0.35);
+      border-radius: 999px;
+      padding: 3px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    h1 { font-size: 24px; margin-bottom: 6px; }
+    .updated { color: var(--muted); font-size: 13px; }
+    h2 {
+      font-size: 17px;
+      color: var(--primary);
+      margin-top: 24px;
+      margin-bottom: 10px;
+    }
+    p, li { color: #E2E8F0; font-size: 14.5px; }
+    p { margin-bottom: 10px; }
+    ul { padding-left: 20px; margin-bottom: 12px; }
+    li { margin-bottom: 6px; }
+    .box {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 14px 0;
+    }
+    code {
+      background: rgba(148, 163, 184, 0.16);
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    footer {
+      margin-top: 28px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <span class="badge">Projeto Privado • Uso Pessoal</span>
+      <h1>Política de Privacidade — Duosat Remote</h1>
+      <p class="updated">Última atualização: 20 de novembro de 2026</p>
+    </header>
+
+    <section>
+      <p>
+        Esta Política de Privacidade descreve como a integração experimental de uso pessoal
+        <strong>Duosat Remote</strong> (Alexa Smart Home Skill em modo de desenvolvimento,
+        função AWS Lambda e serviço bridge local) trata informações durante o controle por voz
+        de um receptor de TV na rede doméstica do próprio titular.
+      </p>
+      <div class="box">
+        <strong>Escopo:</strong> esta integração é exclusivamente privada, não é publicada
+        comercialmente e destina-se apenas ao uso pessoal do desenvolvedor/proprietário da conta Amazon.
+      </div>
+    </section>
+
+    <section>
+      <h2>1. Dados Recebidos e Processados</h2>
+      <p>Durante o uso do Login with Amazon (LWA) e da Alexa Smart Home Skill, apenas os dados estritamente necessários ao funcionamento são recebidos:</p>
+      <ul>
+        <li><strong>Token OAuth 2.0 (<code>BearerToken</code>):</strong> recebido temporariamente nas diretivas enviadas pela Alexa à função AWS Lambda para autorizar a sessão vinculada. Não é gravado em disco nem exibido em logs.</li>
+        <li><strong>Identificador único da conta Amazon (<code>user_id</code>, escopo <code>profile:user_id</code>):</strong> consultado junto ao serviço oficial do Login with Amazon apenas quando a restrição opcional de titular está ativada na Lambda, exclusivamente para verificar se a solicitação pertence ao proprietário do projeto. Nome completo, e-mail, endereço e dados financeiros <strong>não</strong> são solicitados nem coletados.</li>
+        <li><strong>Diretivas de controle de mídia:</strong> tipo de comando solicitado (troca de canal por nome ou número, avançar/voltar canal, ajustar volume ou silenciar) e o identificador técnico da requisição (<code>messageId</code>), utilizado apenas para evitar execuções duplicadas.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>2. Transmissão de Dados</h2>
+      <ul>
+        <li><strong>Amazon Alexa → AWS Lambda:</strong> as diretivas Smart Home são transmitidas via HTTPS pela infraestrutura da Amazon/AWS.</li>
+        <li><strong>AWS Lambda → Bridge local:</strong> apenas o comando estruturado (ação, nome/número de canal ou passo de volume e <code>requestId</code>) é encaminhado por túnel HTTPS autenticado ao bridge local. <strong>Tokens do Login with Amazon e o <code>user_id</code> não são transmitidos ao bridge local nem ao receptor de TV.</strong></li>
+        <li><strong>Bridge local → Receptor de TV:</strong> a comunicação ocorre exclusivamente dentro da rede local privada do usuário.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>3. Armazenamento e Registros Técnicos (Logs)</h2>
+      <ul>
+        <li><strong>Sem banco de dados pessoal:</strong> a integração não mantém banco de dados com dados pessoais ou histórico permanente de comandos de voz.</li>
+        <li><strong>Cache volátil em memória:</strong> a função AWS Lambda pode manter o resultado da validação do token em memória por até 5 minutos (descartado automaticamente ao encerrar a instância), e o bridge local mantém em RAM apenas a lista temporária de canais e os últimos identificadores de requisição para deduplicação.</li>
+        <li><strong>Logs técnicos:</strong> o AWS CloudWatch registra apenas metadados técnicos mínimos (<code>namespace</code>, nome da diretiva e <code>messageId</code>), sem senhas, tokens ou dados pessoais, com retenção recomendada de 7 dias. O console local do bridge aplica mascaramento automático para impedir exposição de segredos.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>4. Compartilhamento com Terceiros</h2>
+      <p>
+        Nenhum dado é vendido, alugado, utilizado para publicidade ou compartilhado com terceiros,
+        além da infraestrutura estritamente necessária para execução do comando (Amazon Alexa,
+        Login with Amazon, AWS Lambda e o túnel HTTPS configurado pelo próprio titular).
+      </p>
+    </section>
+
+    <section>
+      <h2>5. Revogação de Acesso e Exclusão</h2>
+      <p>
+        O titular pode revogar o acesso e encerrar o processamento de dados a qualquer momento:
+      </p>
+      <ul>
+        <li>Desativando a Skill no aplicativo Amazon Alexa;</li>
+        <li>Removendo a autorização do perfil em <em>Sua Conta → Login with Amazon</em>;</li>
+        <li>Encerrando o bridge local e excluindo os logs técnicos no console AWS CloudWatch.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>6. Contato</h2>
+      <p>
+        Por se tratar de uma integração privada de uso pessoal em modo de desenvolvimento, o
+        gerenciamento e o controle dos dados são realizados diretamente pelo próprio titular da conta.
+      </p>
+    </section>
+
+    <footer>
+      Duosat Remote — Integração privada Alexa Smart Home (modo de desenvolvimento). Nenhum dado pessoal sensível é armazenado.
+    </footer>
+  </main>
+</body>
+</html>
